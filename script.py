@@ -5,6 +5,7 @@
 # Loop over data sets
 
 for _surve in survey:
+  # open data sets through S3:
   # report = (xarray object)
   # sv =  (xarray object)
   
