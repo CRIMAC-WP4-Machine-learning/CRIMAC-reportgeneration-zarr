@@ -35,6 +35,7 @@ def prodstage(crimacscratch,_cs,zarrstore):
   return d
 
 
+# This is Ahmet's playground:
 def runcruise(cruise):
   try:
     sv_zarr = xr.open_zarr(cruise['sv_file'])
@@ -66,7 +67,6 @@ def runcruises(files):
 
 
 files = {}
-
 for _cs in cs:
   # Sv file
   _sv_file = os.path.join('ACOUSTIC','GRIDDED','S'+_cs+'_sv.zarr')
@@ -78,7 +78,11 @@ for _cs in cs:
   # Loop over pairs of predictions abd reports
   for _pr in pr:
     # Prediction
-    _pred_file = os.path.join('ACOUSTIC','PREDICTIONS','S'+_cs+'_'+_pr[0])
+    if _pr[0].split('.')[0]=='labels':
+      pl = 'GRIDDED'
+    else:
+      pl = 'PREDICTIONS'
+    _pred_file = os.path.join('ACOUSTIC', pl,'S'+_cs+'_'+_pr[0])
     pred_file = prodstage(crimacscratch,_cs,_pred_file)
     # Report
     _report_file = os.path.join('ACOUSTIC','REPORTS','S'+_cs+'_'+_pr[1])
