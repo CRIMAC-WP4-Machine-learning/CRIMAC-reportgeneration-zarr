@@ -6,7 +6,7 @@ import time
 def generate_report(sv_zarr_directory, labels_zarr_directory, bottom_zarr_directory, threshold,
                     report_csv_save_directory, sa_zarr_save_directory):
     """
-    Generate the input CSV file for StoX and the corresponding sa.zarr file by processing sv data and labels/or predictions.
+    Generate the input csv file for StoX and the corresponding sa.zarr file by processing sv data and labels/or predictions.
 
     Parameters:
     sv_zarr_directory (str): Path to the Zarr directory containing sv data.
@@ -27,6 +27,8 @@ def generate_report(sv_zarr_directory, labels_zarr_directory, bottom_zarr_direct
     end distances, pings, latitudes, longitudes, and range values for each distance bin (0.1 nm). The averaged sv data
     is saved as a Zarr file, and a StoX input CSV file is generated with all the required fields for further analysis.
     """
+
+    start_time = time.time()
 
     # Load data from the server
     sv_zarr = xr.open_zarr(sv_zarr_directory)
@@ -210,4 +212,8 @@ def generate_report(sv_zarr_directory, labels_zarr_directory, bottom_zarr_direct
     df_final = pd.DataFrame(flattened_data)
 
     df_final.to_csv(f'{report_csv_save_directory}', index=False)
+
+    end_time = time.time()
+    execution_time_minutes = (end_time - start_time) / 60
     print(f'StoX input array for survey is saved!')
+    print(f"Execution time: {execution_time_minutes:.2f} minutes")
