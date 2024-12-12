@@ -14,7 +14,7 @@ def generate_report(sv_zarr_directory, labels_zarr_directory, bottom_zarr_direct
     bottom_zarr_directory (str): Path to the Zarr directory containing bottom data.
     threshold (float): Threshold value for filtering based on labels/predictions.For labels, it is 1, for predictions,
                        it is the value maximizing F1 score on training data.
-    csv_savename (str): Name of the CSV file to save the final StoX input data.
+    report_csv_save_directory (str): Name of the CSV file to save the final StoX input data.
     sa_zarr_save_directory (str): Name of the Zarr file to save the averaged SV data.
 
     Outputs:
