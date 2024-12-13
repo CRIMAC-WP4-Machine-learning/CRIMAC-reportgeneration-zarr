@@ -275,7 +275,7 @@ def runcruise(cruise):
             print(f'Report already exists...{reports_zarr_dir}')
         else:
             # Extracting report number
-            report_name = reports_zarr_dir[-13:-4]
+            report_name = reports_zarr_dir[-13:-5]
 
             # Assigning the threshold value accordingly
             threshold = thresholds[report_name]
