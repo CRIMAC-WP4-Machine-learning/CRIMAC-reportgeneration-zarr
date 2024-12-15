@@ -3,37 +3,32 @@ import numpy as np
 import pandas as pd
 import time
 
-def generate_report(sv_zarr_directory, labels_zarr_directory, bottom_zarr_directory, threshold,
+def generate_report(sv_zarr, labels_zarr, bottom_zarr, threshold,
                     report_csv_save_directory, sa_zarr_save_directory):
     """
-    Generate the input csv file for StoX and the corresponding sa.zarr file by processing sv data and labels/or predictions.
+  Generate the input csv file for StoX and corresponding sa.zarr file by processing sv data and labels/or predictions.
 
-    Parameters:
-    sv_zarr_directory (str): Path to the Zarr directory containing sv data.
-    labels_zarr_directory (str): Path to the Zarr directory containing labels or predictions.
-    bottom_zarr_directory (str): Path to the Zarr directory containing bottom data.
-    threshold (float): Threshold value for filtering based on labels/predictions.For labels, it is 1, for predictions,
-                       it is the value maximizing F1 score on training data.
-    report_csv_save_directory (str): Name of the CSV file to save the final StoX input data.
-    sa_zarr_save_directory (str): Name of the Zarr file to save the averaged SV data.
+  Parameters:
+  sv_zarr (zarr): Zarr data containing sv data.
+  labels_zarr (zarr): Zarr data containing labels or predictions.
+  bottom_zarr (stzarrr): Zarr data containing bottom data.
+  threshold (float): Threshold value for filtering based on labels/predictions.For labels, it is 1, for predictions,
+                     it is the value maximizing F1 score on training data.
+  csv_savename (str): Name of the CSV file to save the final StoX input data.
+  sa_zarr_save_directory (str): Name of the Zarr file to save the averaged SV data.
 
-    Outputs:
-    - A Zarr file containing the final sa data.
-    - A CSV file containing the StoX-compatible input data.
+  Outputs:
+  - A Zarr file containing the final sa data.
+  - A CSV file containing the StoX-compatible input data.
 
-    Description:
-    This function loads sv, label(or predictions), and bottom data, filters the SV data based on labels and seabed
-    proximity, and performs distance-based averaging and range bin summation. It calculates metrics such as start and
-    end distances, pings, latitudes, longitudes, and range values for each distance bin (0.1 nm). The averaged sv data
-    is saved as a Zarr file, and a StoX input CSV file is generated with all the required fields for further analysis.
-    """
+  Description:
+  This function loads sv, label(or predictions), and bottom data, filters the SV data based on labels and seabed
+  proximity, and performs distance-based averaging and range bin summation. It calculates metrics such as start and
+  end distances, pings, latitudes, longitudes, and range values for each distance bin (0.1 nm). The averaged sv data
+  is saved as a Zarr file, and a StoX input CSV file is generated with all the required fields for further analysis.
+  """
 
     start_time = time.time()
-
-    # Load data from the server
-    sv_zarr = xr.open_zarr(sv_zarr_directory)
-    labels_zarr = xr.open_zarr(labels_zarr_directory)
-    bottom_zarr = xr.open_zarr(bottom_zarr_directory)
 
     # Selecting sv data and labels arrays from zarr
     labels_sandeel = labels_zarr.annotation.sel(category=27)
@@ -208,7 +203,7 @@ def generate_report(sv_zarr_directory, labels_zarr_directory, bottom_zarr_direct
         'sa_value': nupy_averaged_sv_data.flatten(),
     }
 
-    # Create the data frame directly from the flattened arrays
+    # Create the DataFrame directly from the flattened arrays
     df_final = pd.DataFrame(flattened_data)
 
     df_final.to_csv(f'{report_csv_save_directory}', index=False)
@@ -216,4 +211,5 @@ def generate_report(sv_zarr_directory, labels_zarr_directory, bottom_zarr_direct
     end_time = time.time()
     execution_time_minutes = (end_time - start_time) / 60
     print(f'StoX input array for survey is saved!')
-    print(f"Execution time: {execution_time_minutes:.2f} minutes")
+    print(f"### Execution time: {execution_time_minutes:.2f} minutes")
+
