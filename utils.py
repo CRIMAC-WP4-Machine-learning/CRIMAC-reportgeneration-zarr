@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
 
-def process_report_csv(path_to_csv_report, path_to_STOX):
+def process_report_csv(path_to_csv_report, path_to_STOX, survey_code):
     df = pd.read_csv(path_to_csv_report)
 
     # Reading transect information
@@ -14,7 +14,7 @@ def process_report_csv(path_to_csv_report, path_to_STOX):
         transect_information = pd.read_csv(f'{path_to_STOX}/PSUByTime.txt',
                                            sep="\t", quotechar='"')
     except:
-        transect_information = pd.read_csv(f'{path_to_STOX}/2017843_transects.csv')
+        transect_information = pd.read_csv(f'{path_to_STOX}/{survey_code}_transects.csv')
 
     df['ping_start'] = pd.to_datetime(df['ping_start'])
     df['ping_end'] = pd.to_datetime(df['ping_end'])
@@ -96,7 +96,7 @@ def generate_line_plots(result_1, result_2, result_3, result_4, savename, dpi=40
     # Adjust layout and save the figure
     plt.tight_layout()
     plt.savefig(savename, dpi=dpi, format='jpg')
-    plt.show()
+    plt.close()
     print(f"Plot saved as {savename}")
 
 
@@ -161,5 +161,5 @@ def generate_hexbin_plots(result_1, result_2, result_3, result_4, savename, dpi=
     # Adjust layout and save the figure
     plt.tight_layout()
     plt.savefig(savename, dpi=dpi, format='jpg')
-    plt.show()
+    plt.close()
     print(f"Plot saved as {savename}")
