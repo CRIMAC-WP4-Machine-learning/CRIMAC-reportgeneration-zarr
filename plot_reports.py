@@ -11,7 +11,7 @@ start_time = time.time()
 
 #crimacscratch = os.getenv('CRIMACSCRATCH')
 crimacscratch = '/scratch/disk5/ahmet/remote_data/'
-dataout = '/scratch/disk5/ahmet/testing'
+dataout = '/scratch/disk5/ahmet/testing/'
 
 # Sand eel surveys
 cs = ['2005205', '2006207', '2007205', '2008205', '2009107',
