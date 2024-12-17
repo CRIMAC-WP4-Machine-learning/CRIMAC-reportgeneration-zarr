@@ -3,7 +3,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import time
-from generate_report import generate_report
+from report_generation import generate_report
 
 # Script to generate the reports from the sv+label for the Sand eel series
 
