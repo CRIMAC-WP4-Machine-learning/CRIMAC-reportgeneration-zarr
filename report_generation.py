@@ -134,7 +134,7 @@ def generate_report(sv_zarr, labels_zarr, bottom_zarr, threshold,
 
     ##### Calculating the final Array for StoX
 
-    print(f'Reading the final calculated sa array...')
+    print(f'---Reading the final calculated sa array...')
     nupy_averaged_sv_data = averaged_sv_data.values.T
 
     # TODO: TALK TO ARNE JOHANNES - MULTIPLYING WITH RANGE RESOLUTION!
