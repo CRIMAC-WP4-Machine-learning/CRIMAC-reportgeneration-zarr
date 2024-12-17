@@ -43,7 +43,7 @@ def generate_report(sv_zarr, labels_zarr, bottom_zarr, threshold,
     filtered_sv_data = sv_data.where(labels_sandeel >= threshold)
 
     # Filtering on bottom (10 pixels below)
-    print(f'Filtering the data on bottom...')
+    print(f'---Filtering the data on bottom...')
     # Reading bottom data
     bottom_okuma_denemesi = bottom_data.values
     seabed_pad = 10
@@ -128,7 +128,7 @@ def generate_report(sv_zarr, labels_zarr, bottom_zarr, threshold,
         end_ranges = np.append(end_ranges, original_range[-1])
 
     # Averaging on custom distance bins
-    print(f'Calculating the averages along custom distance bins...')
+    print(f'---Calculating the averages along custom distance bins...')
     rescaled_dist = rescaled_range.assign_coords(segment=('ping_time', labels))  # assigning the coordinate
     averaged_sv_data = rescaled_dist.groupby('segment').mean(dim='ping_time')  # groupby to average
 
@@ -165,7 +165,7 @@ def generate_report(sv_zarr, labels_zarr, bottom_zarr, threshold,
         encoding={"averaged_sv_data": {"chunks": (1000, 20)}}
     )
 
-    print(f'Calculating the final array for StoX in survey...')
+    print(f'---Calculating the final array for StoX in survey...')
 
     ############### Arranging the final array for StoX Input ##################
     # Create a grid of indices for rows and columns
