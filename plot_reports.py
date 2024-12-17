@@ -1,26 +1,26 @@
 import os
+import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
-import numpy as np
+from utils import process_report_csv, generate_line_plots, generate_hexbin_plots
+import time
+
+start_time = time.time()
 
 # Script to generate the reports from the sv+label for the Sand eel series
 
 #crimacscratch = os.getenv('CRIMACSCRATCH')
-crimacscratch = '/data/crimac-scratch/'
-dataout = '/mnt/c/DATAscratch/MLpreds/'
+crimacscratch = '/scratch/disk5/ahmet/remote_data/'
+dataout = '/scratch/disk5/ahmet/testing'
 
 # Sand eel surveys
 cs = ['2005205', '2006207', '2007205', '2008205', '2009107',
-      '2010205', '2011206', '2012837', '2013842', '2014807',
-      '2015837', '2016837', '2017843', '2018823', '2019847',
-      '2020821', '2021847', '2022206', '2022611', '2023006009',
-      '2024002006']
+      '2010205', '2011206', '2013842', '2014807', '2015837',
+      '2016837', '2017843', '2018823', '2019847', '2020821',
+      '2021847', '2022206', '2022611', '2023006009', '2024002006']
 
 # Predictions/labels vs reports
-pr = [['labels.zarr', 'report_1.zarr'],
-      ['predictions_2.zarr', 'report_2.zarr'],
-      ['predictions_3.zarr', 'report_3.zarr'],
-      ['predictions_4.zarr', 'report_4.zarr']]
+pr = ['report_1.csv', 'report_2.csv', 'report_3.csv', 'report_4.csv']
 
 
 # This function prioritizes the staging data over the production data
@@ -28,7 +28,7 @@ def prodstage(crimacscratch,_cs,zarrstore):
   prod = os.path.join(crimacscratch, _cs[0:4], 'S'+_cs, zarrstore)
   staging = os.path.join(crimacscratch, 'staging', _cs[0:4],
                       'S'+_cs, zarrstore)
-  if os.path.exists(staging): 
+  if os.path.exists(staging):
     d = staging
   elif os.path.exists(prod):
     d = prod
@@ -38,49 +38,42 @@ def prodstage(crimacscratch,_cs,zarrstore):
 
 # Plot the figures as a function of time
 for _cs in cs:
-  # Loop over pairs of predictions abd reports
-  ex = False
-  fig, ax = plt.subplots()
-  for _pr in reversed(pr):
-    # Report
-    _report_file = os.path.join('ACOUSTIC', 'REPORTS', 'S'+_cs+'_'+_pr[1])
-    report_file = prodstage(crimacscratch,_cs,_report_file)
-    if report_file is not None:
-      report_zarr = xr.open_zarr(report_file)
-      ex=True
-      sa = (10*report_zarr.averaged_sv_data.sum(dim='range'))
-      ax.plot(sa.segment, sa, label=_pr[1])
-  if ex:
-    ax.legend()
-    ax.set_title(_cs)
-    output_filename = dataout+'S'+_cs+'_sa.png'
-    plt.savefig(output_filename, dpi=500, bbox_inches="tight")
-    plt.close()
 
+    report_files = []
+    missing_dirs = []
 
-# Plot the scatterplot
-for _cs in cs:
-  # Loop over pairs of predictions abd reports
-  _report1_file = os.path.join('ACOUSTIC', 'REPORTS', 'S'+_cs+'_report_1.zarr')
-  report1_file = prodstage(crimacscratch,_cs,_report1_file)
-  print(report1_file)
-  if report1_file is not None:
-    report1_zarr = xr.open_zarr(report1_file)
-    sa0 = (10*report1_zarr.averaged_sv_data.sum(dim='range'))
-    print('sa0: '+str(len(sa0)))
-    fig, ax = plt.subplots()
-    for _pr in pr[1:]:
-      # Report
-      _report_file = os.path.join('ACOUSTIC', 'REPORTS', 'S'+_cs+'_'+_pr[1])
-      report_file = prodstage(crimacscratch,_cs,_report_file)
-      if report_file is not None:
-        report_zarr = xr.open_zarr(report_file)
-        sa = (10*report_zarr.averaged_sv_data.sum(dim='range'))
-        print('sa : '+str(len(sa)))
-        ax.scatter(sa0, sa, label=_pr[1])
-    ax.set_xlabel('report_1')
-    ax.legend()
-    ax.set_title(_cs)
-    output_filename = dataout+'S'+_cs+'_sa_scatter.png'
-    plt.savefig(output_filename, dpi=500, bbox_inches="tight")
-    plt.close()
+    # Build report_files list and check if prodstage returns None
+    for i in range(4):
+        report_path = os.path.join('ACOUSTIC', 'REPORTS', f'S{_cs}_{pr[i]}')
+        result = prodstage(crimacscratch, _cs, report_path)
+        if result:  # Valid path
+            report_files.append(result)
+        else:  # If prodstage returns None, add to missing_dirs
+            missing_dirs.append(report_path)
+
+    # Path to STOX
+    path_to_STOX = f'{crimacscratch}{_cs[0:4]}/S{_cs}/STOX'
+    if not os.path.exists(path_to_STOX):
+        missing_dirs.append(path_to_STOX)
+
+    # Check for missing paths and continue if any are absent
+    if missing_dirs:
+        print(f"Missing directories for survey {_cs}:", *missing_dirs, sep="\n")
+        continue
+    print(f'Creating plots for survey = {_cs}')
+
+    result_1 = process_report_csv(report_files[0], path_to_STOX, f'{_cs}')
+    result_2 = process_report_csv(report_files[1], path_to_STOX, f'{_cs}')
+    result_3 = process_report_csv(report_files[2], path_to_STOX, f'{_cs}')
+    result_4 = process_report_csv(report_files[3], path_to_STOX, f'{_cs}')
+
+    # Example call with your DataFrames:
+    generate_line_plots(result_1, result_2, result_3, result_4, f'{dataout}/S{_cs}_sa_line_plots.jpg')
+
+    # Example call with your DataFrames:
+    generate_hexbin_plots(result_1, result_2, result_3, result_4, f'{dataout}/S{_cs}_sa_comparison_scatters.jpg')
+
+end_time = time.time()
+execution_time_minutes = (end_time - start_time) / 60
+print(f"### Execution time: {execution_time_minutes:.2f} minutes")
+
