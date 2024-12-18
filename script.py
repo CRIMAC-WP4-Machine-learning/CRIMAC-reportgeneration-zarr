@@ -10,9 +10,9 @@ from report_generation import generate_report
 # Threshold Definitions
 thresholds = {
     "report_1": 1.0,
-    "report_2": 0.951172,
+    "report_2": 0.967480,
     "report_3": 0.900195,
-    "report_4": 0.917090,
+    "report_4": 0.896094,
 }
 
 #crimacscratch = os.getenv('CRIMACSCRATCH')
