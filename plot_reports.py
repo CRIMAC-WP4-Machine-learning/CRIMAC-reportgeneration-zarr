@@ -88,6 +88,7 @@ for _cs in cs:
 
     # TODO: Update with staging and prod logic
     sv = xr.open_zarr(f'{crimacscratch}/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_sv.zarr')
+    bottom = xr.open_zarr(f'{crimacscratch}/staging/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_bottom.zarr')
     predictions_1 = xr.open_zarr(f'{crimacscratch}/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_labels.zarr')
     predictions_2 = xr.open_zarr(
         f'{crimacscratch}/staging/{_cs[0:4]}/S{_cs}/ACOUSTIC/PREDICTIONS/S{_cs}_predictions_2.zarr')
@@ -96,31 +97,30 @@ for _cs in cs:
     predictions_4 = xr.open_zarr(
         f'{crimacscratch}/staging/{_cs[0:4]}/S{_cs}/ACOUSTIC/PREDICTIONS/S{_cs}_predictions_4.zarr')
 
-
     # Visualizing best and worst examples from survey
     # Predictions_2
-    plot_worst_best_examples(sv, predictions_1, predictions_2, pd.read_csv(report_files[0]),
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[1]), thresholds['report_2'], f'S{_cs}',
-                             'worst', f'{dataout}/S{_cs}_pred_2_examples')
-    plot_worst_best_examples(sv, predictions_1, predictions_2, pd.read_csv(report_files[0]),
+                             'worst', f'{dataout}/examples/S{_cs}_pred_2_examples')
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[1]), thresholds['report_2'], f'S{_cs}',
-                             'best', f'{dataout}/S{_cs}_pred_2_examples')
+                             'best', f'{dataout}/examples/S{_cs}_pred_2_examples')
 
     # Predictions_3
-    plot_worst_best_examples(sv, predictions_1, predictions_3, pd.read_csv(report_files[0]),
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_3, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[2]), thresholds['report_3'], f'S{_cs}',
-                             'worst', f'{dataout}/S{_cs}_pred_3_examples')
-    plot_worst_best_examples(sv, predictions_1, predictions_3, pd.read_csv(report_files[0]),
+                             'worst', f'{dataout}/examples/S{_cs}_pred_3_examples')
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_3, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[2]), thresholds['report_3'], f'S{_cs}',
-                             'best', f'{dataout}/S{_cs}_pred_3_examples')
+                             'best', f'{dataout}/examples/S{_cs}_pred_3_examples')
 
     # Predictions_4
-    plot_worst_best_examples(sv, predictions_1, predictions_4, pd.read_csv(report_files[0]),
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_4, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[3]), thresholds['report_4'], f'S{_cs}',
-                             'worst', f'{dataout}/S{_cs}_pred_4_examples')
-    plot_worst_best_examples(sv, predictions_1, predictions_4, pd.read_csv(report_files[0]),
+                             'worst', f'{dataout}/examples/S{_cs}_pred_4_examples')
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_4, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[3]), thresholds['report_4'], f'S{_cs}',
-                             'best', f'{dataout}/S{_cs}_pred_4_examples')
+                             'best', f'{dataout}/examples/S{_cs}_pred_4_examples')
 
 
     # Line plots on each 0.1 nm
@@ -139,4 +139,3 @@ for _cs in cs:
 end_time = time.time()
 execution_time_minutes = (end_time - start_time) / 60
 print(f"### Execution time: {execution_time_minutes:.2f} minutes")
-
