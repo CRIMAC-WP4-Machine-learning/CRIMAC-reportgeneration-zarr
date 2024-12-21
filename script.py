@@ -61,6 +61,10 @@ def runcruise(cruise):
         reports_zarr_dir = cruise['report_file']
         reports_csv_dir = cruise['report_file'][:-4] + 'csv'
 
+        # Ensure the parent directories exist
+        os.makedirs(os.path.dirname(reports_zarr_dir), exist_ok=True)
+        os.makedirs(os.path.dirname(reports_csv_dir), exist_ok=True)
+
         #if os.path.exists(reports_zarr_dir):
         #    print(f'Report already exists...{reports_zarr_dir}')
         #else:
