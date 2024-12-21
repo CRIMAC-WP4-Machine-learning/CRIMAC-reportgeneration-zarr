@@ -7,17 +7,25 @@ from report_generation import generate_report
 
 # Script to generate the reports from the sv+label for the Sand eel series
 
-# Threshold Definitions
-thresholds = {
+'''
+thresholds = { # mean values of the training years
     "report_1": 1.0,
     "report_2": 0.967480,
     "report_3": 0.900195,
     "report_4": 0.896094,
 }
+'''
+
+thresholds = { # median values of the training years
+    "report_1": 1.0,
+    "report_2": 0.963378906,
+    "report_3": 0.905761719,
+    "report_4": 0.914550781,
+}
 
 #crimacscratch = os.getenv('CRIMACSCRATCH')
 crimacscratch = '/data/crimac-scratch/'
-dataout = '/data/crimac-scratch/staging/'
+dataout = '/scratch/ahmet/median_reports/'
 
 # Sand eel surveys
 cs = ['2005205', '2006207', '2007205', '2008205', '2009107',
