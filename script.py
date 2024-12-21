@@ -25,7 +25,7 @@ thresholds = { # median values of the training years
 
 #crimacscratch = os.getenv('CRIMACSCRATCH')
 crimacscratch = '/data/crimac-scratch/'
-dataout = '/scratch/ahmet/median_reports/'
+dataout = '/data/crimac-scratch/staging/'
 
 # Sand eel surveys
 cs = ['2005205', '2006207', '2007205', '2008205', '2009107',
