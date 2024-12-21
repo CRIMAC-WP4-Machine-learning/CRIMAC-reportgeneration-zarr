@@ -23,11 +23,20 @@ cs = ['2005205', '2006207', '2007205', '2008205', '2009107',
 # Predictions/labels vs reports
 pr = ['report_1.csv', 'report_2.csv', 'report_3.csv', 'report_4.csv']
 
-thresholds = {
+'''
+thresholds = { # mean values of the training years
     "report_1": 1.0,
     "report_2": 0.967480,
     "report_3": 0.900195,
     "report_4": 0.896094,
+}
+'''
+
+thresholds = { # median values of the training years
+    "report_1": 1.0,
+    "report_2": 0.963378906,
+    "report_3": 0.905761719,
+    "report_4": 0.914550781,
 }
 
 
