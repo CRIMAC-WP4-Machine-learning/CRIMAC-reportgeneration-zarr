@@ -67,7 +67,7 @@ def process_report_csv(path_to_csv_report, path_to_STOX, survey_code):
 
     # Group by the pair (ping_start, ping_end) and sum the sa_value
     result = filtered_data.groupby(['ping_start', 'ping_end'])['sa_value'].sum().reset_index()
-    result['sa_value'] = 10 * result['sa_value']
+    #result['sa_value'] = 10 * result['sa_value']
 
     # Concatenate all filtered chunks into a single DataFrame
     filtered_averaged_data = pd.concat(filtered_averaged_chunks, ignore_index=True)
@@ -75,7 +75,7 @@ def process_report_csv(path_to_csv_report, path_to_STOX, survey_code):
 
     # Group by the pair (ping_start, ping_end) and sum the sa_value
     result_averaged = filtered_averaged_data.groupby(['ping_start', 'ping_end'])['sa_value'].sum().reset_index()
-    result_averaged['sa_value'] = 10 * result_averaged['sa_value']
+    #result_averaged['sa_value'] = 10 * result_averaged['sa_value']
 
     return result, result_averaged
 
@@ -92,12 +92,13 @@ def generate_line_plots(result_1, result_2, result_3, result_4, savename, dpi=40
 
     # Nested function to plot with markers, skipping sa_value == 0
     def plot_with_markers(ax, df1, df2, title, label):
-        ax.plot(df1["ping_start"], df1["sa_value"], linestyle="-", marker=".",
+        NASC_multiplier = 4 * np.pi * (1852 ** 2)
+        ax.plot(df1["ping_start"], df1["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, label="Report 1", markevery=(df1["sa_value"] != 0))
-        ax.plot(df2["ping_start"], df2["sa_value"], linestyle="-", marker=".",
+        ax.plot(df2["ping_start"], df2["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, alpha=0.4, label=label, markevery=(df2["sa_value"] != 0))
         ax.set_title(title)
-        ax.set_ylabel("sa value")
+        ax.set_ylabel("NASC")
         ax.legend(loc='upper right')
 
     # Create figure with 3 rows and 1 column
@@ -135,12 +136,13 @@ def generate_PSU_transect_line_plots(result_1, result_2, result_3, result_4, sav
 
     # Nested function to plot with markers, skipping sa_value == 0
     def plot_with_markers(ax, df1, df2, title, label):
-        ax.plot(range(1, len(df1) + 1), df1["sa_value"], linestyle="-", marker=".",
+        NASC_multiplier = 4 * np.pi * (1852 ** 2)
+        ax.plot(range(1, len(df1) + 1), df1["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, label="Report 1", markevery=(df1["sa_value"] != 0))
-        ax.plot(range(1, len(df2) + 1), df2["sa_value"], linestyle="-", marker=".",
+        ax.plot(range(1, len(df2) + 1), df2["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, alpha=0.4, label=label, markevery=(df2["sa_value"] != 0))
         ax.set_title(title)
-        ax.set_ylabel("sa value")
+        ax.set_ylabel("NASC")
         ax.legend(loc='upper right')
 
     # Create figure with 3 rows and 1 column
