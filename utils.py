@@ -98,7 +98,7 @@ def generate_line_plots(result_1, result_2, result_3, result_4, savename, dpi=40
         ax.plot(df2["ping_start"], df2["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, alpha=0.4, label=label, markevery=(df2["sa_value"] != 0))
         ax.set_title(title)
-        ax.set_ylabel("NASC")
+        ax.set_ylabel(r'NASC $(\mathrm{m}^2 \, \mathrm{nmi}^{-2})$')
         ax.legend(loc='upper right')
 
     # Create figure with 3 rows and 1 column
@@ -142,7 +142,7 @@ def generate_PSU_transect_line_plots(result_1, result_2, result_3, result_4, sav
         ax.plot(range(1, len(df2) + 1), df2["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, alpha=0.4, label=label, markevery=(df2["sa_value"] != 0))
         ax.set_title(title)
-        ax.set_ylabel("NASC")
+        ax.set_ylabel(r'NASC $(\mathrm{m}^2 \, \mathrm{nmi}^{-2})$')
         ax.legend(loc='upper right')
 
     # Create figure with 3 rows and 1 column
@@ -280,7 +280,7 @@ def plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, deneme_1,
 
     # Find top 5 maximum and minimum errors
     worst = deneme_1.nlargest(5, "absolute_error")
-    ara = deneme_1[(deneme_1['sa_value'] > 10**-7) & (deneme_1['sa_value_new'] > 10**-7)] # Filtering empty regions
+    ara = deneme_1[(deneme_1['sa_value'] > 10**-7) & (deneme_1['sa_value_new'] > 10**-7)]
     best = ara.nsmallest(5, "absolute_error")
 
     if name_ == 'best':
