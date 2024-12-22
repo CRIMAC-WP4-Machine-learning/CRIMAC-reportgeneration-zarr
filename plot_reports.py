@@ -97,10 +97,10 @@ for _cs in cs:
     # APPENDING THE sa SUMS TO THE CSV FILE - GENERAL COMPARISON AMONG YEARS
     sa_sums = {
         'Year': _cs[:4],
-        'Report_1': result_1_averaged['sa_values'].sum() if result_1_averaged is not None else None,
-        'Report_2': result_2_averaged['sa_values'].sum() if result_2_averaged is not None else None,
-        'Report_3': result_3_averaged['sa_values'].sum() if result_3_averaged is not None else None,
-        'Report_4': result_4_averaged['sa_values'].sum() if result_4_averaged is not None else None,
+        'Report_1': result_1_averaged['sa_value'].sum() if result_1_averaged is not None else None,
+        'Report_2': result_2_averaged['sa_value'].sum() if result_2_averaged is not None else None,
+        'Report_3': result_3_averaged['sa_value'].sum() if result_3_averaged is not None else None,
+        'Report_4': result_4_averaged['sa_value'].sum() if result_4_averaged is not None else None,
     }
 
     # Append the data to the CSV
