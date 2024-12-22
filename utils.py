@@ -347,7 +347,7 @@ def plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, deneme_1,
                             extent=[ping_time[0], ping_time[-1], range_values[-1], range_values[0]])
         axs[1].plot(ping_time, y_coords, color='grey', linewidth=2, label='Bottom Line')  # bottom
         axs[1].grid(False)
-        axs[1].set_title(f"Predictions 2 (sa={selected_df['sa_value_new'].values[i]})")
+        axs[1].set_title(f"Predictions (sa={selected_df['sa_value_new'].values[i]})")
         axs[1].set_ylabel("range (m)")
 
         # Third plot
