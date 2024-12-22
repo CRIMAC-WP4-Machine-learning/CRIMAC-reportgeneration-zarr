@@ -280,7 +280,7 @@ def plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, deneme_1,
 
     # Find top 5 maximum and minimum errors
     worst = deneme_1.nlargest(5, "absolute_error")
-    ara = deneme_1[(deneme_1['sa_value'] > 10**-8) & (deneme_1['sa_value_new'] > 10**-8)]
+    ara = deneme_1[(deneme_1['sa_value'] > 10**-7) & (deneme_1['sa_value_new'] > 10**-7)] # Filtering empty regions
     best = ara.nsmallest(5, "absolute_error")
 
     if name_ == 'best':
