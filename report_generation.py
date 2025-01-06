@@ -130,7 +130,7 @@ def generate_report(sv_zarr, labels_zarr, bottom_zarr, threshold,
     # Averaging on custom distance bins
     print(f'---Calculating the averages along custom distance bins...')
     rescaled_dist = rescaled_range.assign_coords(segment=('ping_time', labels))  # assigning the coordinate
-    averaged_sv_data = rescaled_dist.groupby('segment').mean(dim='ping_time')  # groupby to average
+    averaged_sv_data = rescaled_dist.groupby('segment').mean(dim='ping_time', skipna=True)  # groupby to average
 
     ##### Calculating the final Array for StoX
 

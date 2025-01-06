@@ -67,7 +67,7 @@ def process_report_csv(path_to_csv_report, path_to_STOX, survey_code):
 
     # Group by the pair (ping_start, ping_end) and sum the sa_value
     result = filtered_data.groupby(['ping_start', 'ping_end'])['sa_value'].sum().reset_index()
-    result['sa_value'] = 10 * result['sa_value']
+    #result['sa_value'] = 10 * result['sa_value']
 
     # Concatenate all filtered chunks into a single DataFrame
     filtered_averaged_data = pd.concat(filtered_averaged_chunks, ignore_index=True)
@@ -75,7 +75,7 @@ def process_report_csv(path_to_csv_report, path_to_STOX, survey_code):
 
     # Group by the pair (ping_start, ping_end) and sum the sa_value
     result_averaged = filtered_averaged_data.groupby(['ping_start', 'ping_end'])['sa_value'].sum().reset_index()
-    result_averaged['sa_value'] = 10 * result_averaged['sa_value']
+    #result_averaged['sa_value'] = 10 * result_averaged['sa_value']
 
     return result, result_averaged
 
@@ -92,12 +92,13 @@ def generate_line_plots(result_1, result_2, result_3, result_4, savename, dpi=40
 
     # Nested function to plot with markers, skipping sa_value == 0
     def plot_with_markers(ax, df1, df2, title, label):
-        ax.plot(df1["ping_start"], df1["sa_value"], linestyle="-", marker=".",
+        NASC_multiplier = 4 * np.pi * (1852 ** 2)
+        ax.plot(df1["ping_start"], df1["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, label="Report 1", markevery=(df1["sa_value"] != 0))
-        ax.plot(df2["ping_start"], df2["sa_value"], linestyle="-", marker=".",
+        ax.plot(df2["ping_start"], df2["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, alpha=0.4, label=label, markevery=(df2["sa_value"] != 0))
         ax.set_title(title)
-        ax.set_ylabel("sa value")
+        ax.set_ylabel(r'NASC $(\mathrm{m}^2 \, \mathrm{nmi}^{-2})$')
         ax.legend(loc='upper right')
 
     # Create figure with 3 rows and 1 column
@@ -135,12 +136,13 @@ def generate_PSU_transect_line_plots(result_1, result_2, result_3, result_4, sav
 
     # Nested function to plot with markers, skipping sa_value == 0
     def plot_with_markers(ax, df1, df2, title, label):
-        ax.plot(range(1, len(df1) + 1), df1["sa_value"], linestyle="-", marker=".",
+        NASC_multiplier = 4 * np.pi * (1852 ** 2)
+        ax.plot(range(1, len(df1) + 1), df1["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, label="Report 1", markevery=(df1["sa_value"] != 0))
-        ax.plot(range(1, len(df2) + 1), df2["sa_value"], linestyle="-", marker=".",
+        ax.plot(range(1, len(df2) + 1), df2["sa_value"] * NASC_multiplier, linestyle="-", marker=".",
                 markersize=4, alpha=0.4, label=label, markevery=(df2["sa_value"] != 0))
         ax.set_title(title)
-        ax.set_ylabel("sa value")
+        ax.set_ylabel(r'NASC $(\mathrm{m}^2 \, \mathrm{nmi}^{-2})$')
         ax.legend(loc='upper right')
 
     # Create figure with 3 rows and 1 column
@@ -263,7 +265,13 @@ def generate_boxplot(result_1, result_2, result_3, result_4, savename):
     print(f"Boxplot saved as {savename}")
 
 
-def plot_worst_best_examples(sv, predictions_1, predictions_2, deneme_1, deneme_2, threshold_value, survey_code, name_, savename):
+def plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, deneme_1, deneme_2, threshold_value, survey_code, name_, savename):
+    # Averaging over 0.1 nmiles
+    deneme_1 = deneme_1.groupby(['ping_start', 'ping_end', 'dist_start (nm)', 'dist_end (nm)'],
+                                as_index=False).sum('sa_value')
+    deneme_2 = deneme_2.groupby(['ping_start', 'ping_end', 'dist_start (nm)', 'dist_end (nm)'],
+                                as_index=False).sum('sa_value')
+
     # Calculate absolute error
     deneme_1["absolute_error"] = (deneme_1["sa_value"] - deneme_2["sa_value"]).abs()
 
@@ -272,7 +280,7 @@ def plot_worst_best_examples(sv, predictions_1, predictions_2, deneme_1, deneme_
 
     # Find top 5 maximum and minimum errors
     worst = deneme_1.nlargest(5, "absolute_error")
-    ara = deneme_1[deneme_1['sa_value'] != 0]
+    ara = deneme_1[(deneme_1['sa_value'] > 10**-7) & (deneme_1['sa_value_new'] > 10**-7)]
     best = ara.nsmallest(5, "absolute_error")
 
     if name_ == 'best':
@@ -294,17 +302,34 @@ def plot_worst_best_examples(sv, predictions_1, predictions_2, deneme_1, deneme_
         closest_end_time = ping_times[closest_end_index]  # Get the corresponding ping_end time
 
         ping_slice = slice(closest_start_index, closest_end_index)
-        range_slice = slice(0, 300)
+        range_slice = slice(0, 500)
 
         sv_portion = sv.sv.sel(frequency=200000).isel(ping_time=ping_slice, range=range_slice)
-        predictions_1_portion = predictions_1.annotation.sel(category=27).isel(ping_time=ping_slice, range=range_slice)
-        predictions_2_portion = predictions_2.annotation.sel(category=27).isel(ping_time=ping_slice, range=range_slice)
-        predictions_2_portion = predictions_2_portion >= threshold_value
+        bottom_portion = bottom.bottom_range.isel(ping_time=ping_slice, range=range_slice)
 
-        # Assuming sv_portion is an xarray.DataArray with dimensions 'ping_time' and 'range'
+        bottom_okuma_denemesi = bottom_portion.values
+        seabed_slice_pad = np.zeros_like(bottom_okuma_denemesi).copy()
+        seabed_slice_pad[:, 10:] = bottom_okuma_denemesi[:, :-10]
+        bottom_portion_10_below = bottom_portion.copy()
+        bottom_portion_10_below = bottom_portion_10_below.copy(data=seabed_slice_pad)
+
+        # identifying the bottom line
+        # Example input array
+        data = bottom_portion.T.values
+        first_one_mask = np.cumsum(data == 1, axis=0) == 1
+        bottom_line = data * first_one_mask
+        # Find the row index of the first 1 in each column
+        first_one_indices = np.argmax(bottom_line == 1, axis=0)
+
+        predictions_1_portion = predictions_1.annotation.sel(category=27).isel(ping_time=ping_slice, range=range_slice)
+        predictions_2_portion_ = predictions_2.annotation.sel(category=27).isel(ping_time=ping_slice, range=range_slice)
+        predictions_2_portion = (predictions_2_portion_.where(bottom_portion_10_below != 1) >= threshold_value)
+
         # Extracting the coordinate values
         ping_time = sv_portion.ping_time.values
         range_values = sv_portion.range.values
+
+        y_coords = range_values[first_one_indices]
 
         # Plotting the figures in a single plot with 3 rows and 1 column
         fig, axs = plt.subplots(3, 1, figsize=(6, 12), sharex=True)
@@ -320,13 +345,15 @@ def plot_worst_best_examples(sv, predictions_1, predictions_2, deneme_1, deneme_
         # Second plot
         im2 = axs[1].imshow(predictions_2_portion.T, cmap='seismic', vmin=0, vmax=1, aspect='auto',
                             extent=[ping_time[0], ping_time[-1], range_values[-1], range_values[0]])
+        axs[1].plot(ping_time, y_coords, color='grey', linewidth=2, label='Bottom Line')  # bottom
         axs[1].grid(False)
-        axs[1].set_title(f"Predictions 2 (sa={selected_df['sa_value_new'].values[i]})")
+        axs[1].set_title(f"Predictions (sa={selected_df['sa_value_new'].values[i]})")
         axs[1].set_ylabel("range (m)")
 
         # Third plot
         im3 = axs[2].imshow(predictions_1_portion.T, cmap='seismic', vmin=0, vmax=1, aspect='auto',
                             extent=[ping_time[0], ping_time[-1], range_values[-1], range_values[0]])
+        axs[2].plot(ping_time, y_coords, color='grey', linewidth=2, label='Bottom Line')  # bottom
         axs[2].grid(False)
         axs[2].set_title(f"Labels (sa={selected_df['sa_value'].values[i]})")
         axs[2].set_xlabel("ping time")

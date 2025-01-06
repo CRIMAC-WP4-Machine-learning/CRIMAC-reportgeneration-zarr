@@ -11,8 +11,8 @@ start_time = time.time()
 # Script to generate the reports from the sv+label for the Sand eel series
 
 #crimacscratch = os.getenv('CRIMACSCRATCH')
-crimacscratch = '/data/crimac-scratch/'
-dataout = '/scratch/ahmet/plots'
+crimacscratch = '/scratch/disk5/ahmet/remote_data/'
+dataout = '/scratch/disk5/ahmet/testing/plots'
 
 # Sand eel surveys
 cs = ['2005205', '2006207', '2007205', '2008205', '2009107',
@@ -23,11 +23,22 @@ cs = ['2005205', '2006207', '2007205', '2008205', '2009107',
 # Predictions/labels vs reports
 pr = ['report_1.csv', 'report_2.csv', 'report_3.csv', 'report_4.csv']
 
-thresholds = {
+
+
+'''
+thresholds = {  # mean values of the training years
     "report_1": 1.0,
     "report_2": 0.967480,
     "report_3": 0.900195,
     "report_4": 0.896094,
+}
+'''
+
+thresholds = {  # median values of the training years
+    "report_1": 1.0,
+    "report_2": 0.963378906,
+    "report_3": 0.905761719,
+    "report_4": 0.914550781,
 }
 
 
@@ -43,6 +54,14 @@ def prodstage(crimacscratch,_cs,zarrstore):
   else:
     d = None
   return d
+
+
+# Initialize output CSV file
+output_csv = f'{dataout}/sa_sum_values_summary.csv'
+if not os.path.exists(output_csv):
+    pd.DataFrame(columns=['Year', 'Report_1', 'Report_2', 'Report_3', 'Report_4']).to_csv(output_csv, index=False)
+
+
 
 # Plot the figures as a function of time
 for _cs in cs:
@@ -75,6 +94,18 @@ for _cs in cs:
     result_3, result_3_averaged = process_report_csv(report_files[2], path_to_STOX, f'{_cs}')
     result_4, result_4_averaged = process_report_csv(report_files[3], path_to_STOX, f'{_cs}')
 
+    # APPENDING THE sa SUMS TO THE CSV FILE - GENERAL COMPARISON AMONG YEARS
+    sa_sums = {
+        'Year': _cs[:4],
+        'Report_1': result_1_averaged['sa_value'].sum() if result_1_averaged is not None else None,
+        'Report_2': result_2_averaged['sa_value'].sum() if result_2_averaged is not None else None,
+        'Report_3': result_3_averaged['sa_value'].sum() if result_3_averaged is not None else None,
+        'Report_4': result_4_averaged['sa_value'].sum() if result_4_averaged is not None else None,
+    }
+
+    # Append the data to the CSV
+    pd.DataFrame([sa_sums]).to_csv(output_csv, mode='a', header=False, index=False)
+
 
     # Reading sv, labes, and predictions
 
@@ -88,6 +119,7 @@ for _cs in cs:
 
     # TODO: Update with staging and prod logic
     sv = xr.open_zarr(f'{crimacscratch}/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_sv.zarr')
+    bottom = xr.open_zarr(f'{crimacscratch}/staging/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_bottom.zarr')
     predictions_1 = xr.open_zarr(f'{crimacscratch}/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_labels.zarr')
     predictions_2 = xr.open_zarr(
         f'{crimacscratch}/staging/{_cs[0:4]}/S{_cs}/ACOUSTIC/PREDICTIONS/S{_cs}_predictions_2.zarr')
@@ -96,31 +128,30 @@ for _cs in cs:
     predictions_4 = xr.open_zarr(
         f'{crimacscratch}/staging/{_cs[0:4]}/S{_cs}/ACOUSTIC/PREDICTIONS/S{_cs}_predictions_4.zarr')
 
-
     # Visualizing best and worst examples from survey
     # Predictions_2
-    plot_worst_best_examples(sv, predictions_1, predictions_2, pd.read_csv(report_files[0]),
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[1]), thresholds['report_2'], f'S{_cs}',
-                             'worst', f'{dataout}/S{_cs}_pred_2_examples')
-    plot_worst_best_examples(sv, predictions_1, predictions_2, pd.read_csv(report_files[0]),
+                             'worst', f'{dataout}/examples/S{_cs}_pred_2_examples')
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[1]), thresholds['report_2'], f'S{_cs}',
-                             'best', f'{dataout}/S{_cs}_pred_2_examples')
+                             'best', f'{dataout}/examples/S{_cs}_pred_2_examples')
 
     # Predictions_3
-    plot_worst_best_examples(sv, predictions_1, predictions_3, pd.read_csv(report_files[0]),
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_3, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[2]), thresholds['report_3'], f'S{_cs}',
-                             'worst', f'{dataout}/S{_cs}_pred_3_examples')
-    plot_worst_best_examples(sv, predictions_1, predictions_3, pd.read_csv(report_files[0]),
+                             'worst', f'{dataout}/examples/S{_cs}_pred_3_examples')
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_3, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[2]), thresholds['report_3'], f'S{_cs}',
-                             'best', f'{dataout}/S{_cs}_pred_3_examples')
+                             'best', f'{dataout}/examples/S{_cs}_pred_3_examples')
 
     # Predictions_4
-    plot_worst_best_examples(sv, predictions_1, predictions_4, pd.read_csv(report_files[0]),
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_4, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[3]), thresholds['report_4'], f'S{_cs}',
-                             'worst', f'{dataout}/S{_cs}_pred_4_examples')
-    plot_worst_best_examples(sv, predictions_1, predictions_4, pd.read_csv(report_files[0]),
+                             'worst', f'{dataout}/examples/S{_cs}_pred_4_examples')
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_4, pd.read_csv(report_files[0]),
                              pd.read_csv(report_files[3]), thresholds['report_4'], f'S{_cs}',
-                             'best', f'{dataout}/S{_cs}_pred_4_examples')
+                             'best', f'{dataout}/examples/S{_cs}_pred_4_examples')
 
 
     # Line plots on each 0.1 nm
@@ -131,10 +162,12 @@ for _cs in cs:
                         f'{dataout}/S{_cs}_line_plots_sa_transect_averaged.jpg')
 
     # Scatter and density (hexbin) plots
-    generate_hexbin_plots(result_1, result_2, result_3, result_4, f'{dataout}/S{_cs}_scatters_sa_comparison.jpg')
+    generate_hexbin_plots(result_1_averaged, result_2_averaged, result_3_averaged, result_4_averaged,
+                          f'{dataout}/S{_cs}_scatters_sa_comparison.jpg')
 
     # Generate boxplots for sa comparison
-    generate_boxplot(result_1, result_2, result_3, result_4, f'{dataout}/S{_cs}_boxplots_sa_comparison.jpg')
+    generate_boxplot(result_1_averaged, result_2_averaged, result_3_averaged, result_4_averaged,
+                     f'{dataout}/S{_cs}_boxplots_sa_comparison.jpg')
 
 end_time = time.time()
 execution_time_minutes = (end_time - start_time) / 60
