@@ -1,4 +1,5 @@
 import os
+import zarr
 import xarray as xr
 import numpy as np
 import pandas as pd
@@ -53,28 +54,29 @@ def runcruise(cruise):
         reports_zarr_dir = cruise['report_file']
         reports_csv_dir = cruise['report_file'][:-4] + 'csv'
 
-        #if os.path.exists(reports_zarr_dir):
-        #    print(f'Report already exists...{reports_zarr_dir}')
-        #else:
-        # Extracting report number
-        report_name = reports_zarr_dir[-13:-5]
+        if os.path.exists(reports_zarr_dir):
+            print(f'Report already exists...{reports_zarr_dir}')
+        else:
+            # Extracting report number
+            report_name = reports_zarr_dir[-13:-5]
 
-        # Assigning the threshold value accordingly
-        threshold = thresholds[report_name]
+            # Assigning the threshold value accordingly
+            threshold = thresholds[report_name]
 
-        print('Export reports.zarr to ', reports_zarr_dir)  # zarr name
-        print('Export reports.csv to ', reports_csv_dir)  # csv name
+            print('Export reports.zarr to ', reports_zarr_dir)  # zarr name
+            print('Export reports.csv to ', reports_csv_dir)  # csv name
 
-        sv_zarr = xr.open_zarr(cruise['sv_file'])
-        label_zarr = xr.open_zarr(cruise['pred_file'])
-        bottom_zarr = xr.open_zarr(cruise['bottom_file'])
+            sv_zarr = xr.open_zarr(cruise['sv_file'])
+            label_zarr = xr.open_zarr(cruise['pred_file'])
+            bottom_zarr = xr.open_zarr(cruise['bottom_file'])
 
-        # Generating reports
-        generate_report(sv_zarr, label_zarr, bottom_zarr, threshold,
-                        reports_csv_dir, reports_zarr_dir)
-    except:
+            # Generating reports
+            generate_report(sv_zarr, label_zarr, bottom_zarr, threshold,
+                            reports_csv_dir, reports_zarr_dir)
+    except Exception as e:
         print(cruise)
-        print('Failed!!!!')
+        print('An error occured:')
+        print(e)
 
 
 def runcruises(files):
