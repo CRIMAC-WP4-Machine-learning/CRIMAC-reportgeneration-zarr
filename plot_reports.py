@@ -11,8 +11,9 @@ start_time = time.time()
 # Script to generate the reports from the sv+label for the Sand eel series
 
 #crimacscratch = os.getenv('CRIMACSCRATCH')
-crimacscratch = '/scratch/disk5/ahmet/remote_data/'
-dataout = '/scratch/disk5/ahmet/testing/plots'
+#crimacscratch = '/scratch/disk5/ahmet/remote_data/'
+crimacscratch = '/data/crimac-scratch/'
+dataout = '/mnt/c/DATAscratch/tmp3/'
 
 # Sand eel surveys
 cs = ['2005205', '2006207', '2007205', '2008205', '2009107',
@@ -40,7 +41,6 @@ thresholds = {  # median values of the training years
     "report_3": 0.905761719,
     "report_4": 0.914550781,
 }
-
 
 # This function prioritizes the staging data over the production data
 def prodstage(crimacscratch,_cs,zarrstore):
@@ -85,9 +85,9 @@ for _cs in cs:
 
     # Check for missing paths and continue if any are absent
     if missing_dirs:
-        print(f"Missing directories for survey {_cs}:", *missing_dirs, sep="\n")
+        print(f"\nMissing directories for survey {_cs}:", *missing_dirs, sep="\n")
         continue
-    print(f'Creating plots for survey = {_cs}')
+    print(f'\nCreating plots for survey {_cs}.')
 
     result_1, result_1_averaged = process_report_csv(report_files[0], path_to_STOX, f'{_cs}')
     result_2, result_2_averaged = process_report_csv(report_files[1], path_to_STOX, f'{_cs}')
@@ -117,10 +117,14 @@ for _cs in cs:
         report_path = os.path.join('ACOUSTIC', 'GRIDDED', f'S{_cs}_{zarrs[i]}')
         result = prodstage(crimacscratch, _cs, report_path)
 
-    # TODO: Update with staging and prod logic
-    sv = xr.open_zarr(f'{crimacscratch}/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_sv.zarr')
-    bottom = xr.open_zarr(f'{crimacscratch}/staging/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_bottom.zarr')
-    predictions_1 = xr.open_zarr(f'{crimacscratch}/{_cs[0:4]}/S{_cs}/ACOUSTIC/GRIDDED/S{_cs}_labels.zarr')
+    # Attach sv, labels, bottom, and predictions
+    zarrstore = f'ACOUSTIC/GRIDDED/S{_cs}_sv.zarr'
+    sv_f = prodstage(crimacscratch,_cs, zarrstore)
+    sv = xr.open_zarr(sv_f)
+    bottom_f = prodstage(crimacscratch, _cs, f'ACOUSTIC/GRIDDED/S{_cs}_bottom.zarr')
+    bottom = xr.open_zarr(bottom_f)
+    labels_f = prodstage(crimacscratch, _cs, f'ACOUSTIC/GRIDDED/S{_cs}_labels.zarr')
+    predictions_1 = xr.open_zarr(labels_f)
     predictions_2 = xr.open_zarr(
         f'{crimacscratch}/staging/{_cs[0:4]}/S{_cs}/ACOUSTIC/PREDICTIONS/S{_cs}_predictions_2.zarr')
     predictions_3 = xr.open_zarr(
@@ -171,5 +175,5 @@ for _cs in cs:
 
 end_time = time.time()
 execution_time_minutes = (end_time - start_time) / 60
-print(f"### Execution time: {execution_time_minutes:.2f} minutes")
+print(f"\n### Execution time: {execution_time_minutes:.2f} minutes")
 
