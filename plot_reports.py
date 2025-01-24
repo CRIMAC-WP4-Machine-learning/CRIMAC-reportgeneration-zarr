@@ -132,27 +132,27 @@ for _cs in cs:
 
     # Visualizing best and worst examples from survey
     # Predictions_2
-    plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, pd.read_csv(report_files[0]),
-                             pd.read_csv(report_files[1]), thresholds['report_2'], f'S{_cs}',
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, result_1,
+                             result_2, thresholds['report_2'], f'S{_cs}',
                              'worst', f'{dataout}/examples/S{_cs}_pred_2_examples')
-    plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, pd.read_csv(report_files[0]),
-                             pd.read_csv(report_files[1]), thresholds['report_2'], f'S{_cs}',
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, result_1,
+                             result_2, thresholds['report_2'], f'S{_cs}',
                              'best', f'{dataout}/examples/S{_cs}_pred_2_examples')
 
     # Predictions_3
-    plot_worst_best_examples(sv, bottom, predictions_1, predictions_3, pd.read_csv(report_files[0]),
-                             pd.read_csv(report_files[2]), thresholds['report_3'], f'S{_cs}',
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_3, result_1,
+                             result_3, thresholds['report_3'], f'S{_cs}',
                              'worst', f'{dataout}/examples/S{_cs}_pred_3_examples')
-    plot_worst_best_examples(sv, bottom, predictions_1, predictions_3, pd.read_csv(report_files[0]),
-                             pd.read_csv(report_files[2]), thresholds['report_3'], f'S{_cs}',
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_3, result_1,
+                             result_3, thresholds['report_3'], f'S{_cs}',
                              'best', f'{dataout}/examples/S{_cs}_pred_3_examples')
 
     # Predictions_4
-    plot_worst_best_examples(sv, bottom, predictions_1, predictions_4, pd.read_csv(report_files[0]),
-                             pd.read_csv(report_files[3]), thresholds['report_4'], f'S{_cs}',
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_4, result_1,
+                             result_4, thresholds['report_4'], f'S{_cs}',
                              'worst', f'{dataout}/examples/S{_cs}_pred_4_examples')
-    plot_worst_best_examples(sv, bottom, predictions_1, predictions_4, pd.read_csv(report_files[0]),
-                             pd.read_csv(report_files[3]), thresholds['report_4'], f'S{_cs}',
+    plot_worst_best_examples(sv, bottom, predictions_1, predictions_4, result_1,
+                             result_4, thresholds['report_4'], f'S{_cs}',
                              'best', f'{dataout}/examples/S{_cs}_pred_4_examples')
 
 
