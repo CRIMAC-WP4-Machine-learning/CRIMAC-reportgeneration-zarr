@@ -267,10 +267,10 @@ def generate_boxplot(result_1, result_2, result_3, result_4, savename):
 
 def plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, deneme_1, deneme_2, threshold_value, survey_code, name_, savename):
     # Averaging over 0.1 nmiles
-    deneme_1 = deneme_1.groupby(['ping_start', 'ping_end', 'dist_start (nm)', 'dist_end (nm)'],
-                                as_index=False).sum('sa_value')
-    deneme_2 = deneme_2.groupby(['ping_start', 'ping_end', 'dist_start (nm)', 'dist_end (nm)'],
-                                as_index=False).sum('sa_value')
+    #deneme_1 = deneme_1.groupby(['ping_start', 'ping_end', 'dist_start (nm)', 'dist_end (nm)'],
+    #                            as_index=False).sum('sa_value')
+    #deneme_2 = deneme_2.groupby(['ping_start', 'ping_end', 'dist_start (nm)', 'dist_end (nm)'],
+    #                            as_index=False).sum('sa_value')
 
     # Calculate absolute error
     deneme_1["absolute_error"] = (deneme_1["sa_value"] - deneme_2["sa_value"]).abs()
