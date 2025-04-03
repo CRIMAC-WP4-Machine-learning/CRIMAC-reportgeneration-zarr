@@ -5,7 +5,6 @@ from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
-
 def process_report_csv(path_to_csv_report, path_to_STOX, survey_code):
     df = pd.read_csv(path_to_csv_report)
 
@@ -333,36 +332,52 @@ def plot_worst_best_examples(sv, bottom, predictions_1, predictions_2, deneme_1,
 
         # Plotting the figures in a single plot with 3 rows and 1 column
         fig, axs = plt.subplots(3, 1, figsize=(6, 12), sharex=True)
-
+        fs = 14
+        cmap_ = plt.get_cmap('seismic')
+        cmap = colors.ListedColormap([cmap_(0), cmap_(255)])
+        
         # First plot
         im1 = axs[0].imshow(10 * np.log10(sv_portion).T, cmap='viridis', aspect='auto',
                             extent=[ping_time[0], ping_time[-1], range_values[-1], range_values[0]])
 
         axs[0].grid(False)
-        axs[0].set_title(f"Sv in 200 kHz ({closest_start_time})\n {name_}{i + 1} ({survey_code})")
-        axs[0].set_ylabel("range (m)")
+        #axs[0].set_title(f"Sv in 200 kHz ({closest_start_time})\n {name_}{i + 1} ({survey_code})", fontsize=fs)
+        axs[0].set_ylabel("range (m)", fontsize=fs)
+        axs[0].tick_params(axis='both', labelsize=fs)
+        
+        # Add colorbar to the first plot
+        cbar1 = fig.colorbar(im1, ax=axs[0], orientation='vertical', fraction=0.046, pad=0.04)
+        cbar1.set_label('Sv (dB re $1\ \mathrm{m}^{-1}$)', fontsize=fs)
+
 
         # Second plot
-        im2 = axs[1].imshow(predictions_2_portion.T, cmap='seismic', vmin=0, vmax=1, aspect='auto',
+        im2 = axs[1].imshow(predictions_2_portion.T, cmap=cmap, vmin=0, vmax=1, aspect='auto',
                             extent=[ping_time[0], ping_time[-1], range_values[-1], range_values[0]])
         axs[1].plot(ping_time, y_coords, color='grey', linewidth=2, label='Bottom Line')  # bottom
         axs[1].grid(False)
-        axs[1].set_title(f"Predictions (sa={selected_df['sa_value_new'].values[i]})")
-        axs[1].set_ylabel("range (m)")
-
+        axs[1].set_title(f"Predictions (sa={selected_df['sa_value_new'].values[i]})", fontsize=fs)
+        axs[1].set_ylabel("range (m)", fontsize=fs)
+        axs[1].tick_params(axis='both', labelsize=fs)
+        #ax.tick_params(axis='both', which='minor', labelsize=fs)
+        cbar2 = fig.colorbar(im2, ax=axs[1], ticks=[0, 1], orientation='vertical', fraction=0.046, pad=0.04)
+        cbar2.set_label('Acoustic category', fontsize=fs)
+        cbar2.ax.set_yticklabels(['BG', 'SE'], fontsize=fs)
+        
         # Third plot
-        im3 = axs[2].imshow(predictions_1_portion.T, cmap='seismic', vmin=0, vmax=1, aspect='auto',
+        im3 = axs[2].imshow(predictions_1_portion.T, cmap=cmap, vmin=0, vmax=1, aspect='auto',
                             extent=[ping_time[0], ping_time[-1], range_values[-1], range_values[0]])
         axs[2].plot(ping_time, y_coords, color='grey', linewidth=2, label='Bottom Line')  # bottom
         axs[2].grid(False)
-        axs[2].set_title(f"Labels (sa={selected_df['sa_value'].values[i]})")
-        axs[2].set_xlabel("ping time")
-        axs[2].set_ylabel("range (m)")
-
-        plt.xticks(rotation=45)
-
-        # Adjust layout
-        plt.tight_layout()
+        axs[2].set_title(f"Labels (sa={selected_df['sa_value'].values[i]})", fontsize=fs)
+        axs[2].set_xlabel("ping time", fontsize=fs)
+        axs[2].set_ylabel("range (m)", fontsize=fs)
+        axs[2].tick_params(axis='both', labelsize=fs)
+        cbar3 = fig.colorbar(im3, ax=axs[2], ticks=[0, 1], orientation='vertical', fraction=0.046, pad=0.04)
+        cbar3.set_label('Acoustic category', fontsize=fs)
+        cbar3.ax.set_yticklabels(['BG', 'SE'], fontsize=fs)
+        
+        plt.xticks(rotation=45, fontsize=fs)
+        plt.subplots_adjust(left=0.1, right=0.85, top=0.98, bottom=0.1, hspace=0.13)
 
         # Save the figure
         plt.savefig(f'{savename}_{name_}{i + 1}.jpg', dpi=400, format='jpg')
