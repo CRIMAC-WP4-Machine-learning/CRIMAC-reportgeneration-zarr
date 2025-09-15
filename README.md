@@ -1,4 +1,9 @@
 # CRIMAC-reportgeneration-zarr
+This repository has been archived and is no longer actively maintained.
+
+The project has moved to a new platform: https://git.imr.no/crimac-wp4-machine-learning/CRIMAC-reportgeneration-zarr
+
+Thank you for your support and contributions! Feel free to check the new repository for the latest updates and discussion.
 
 ## Description
 
